@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".activity.MainActivity">
+    <EditText
+        android:id="@+id/et_input"
+        android:layout_width="match_parent"
+        android:layout_height="45dp"
+        android:layout_toStartOf="@+id/spin_search_type"
+        android:textSize="15dp"
+        android:singleLine="true"
+        tools:hint="请输入应用名或包名"
+        android:textColor="@android:color/black"
+        android:textColorHint="@android:color/darker_gray" />
+
+    <ImageView
+        android:id="@+id/iv_clear"
+        android:layout_width="30dp"
+        android:layout_height="30dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginBottom="5dp"
+        android:layout_alignEnd="@+id/et_input"
+        android:layout_alignTop="@+id/et_input"
+        android:layout_alignBottom="@+id/et_input"
+        android:src="@android:drawable/ic_menu_close_clear_cancel"/>
+
+    <Spinner
+        android:id="@+id/spin_search_type"
+        android:layout_width="wrap_content"
+        android:layout_height="45dp"
+        style="@android:style/Widget.Material.Spinner.Underlined"
+        android:layout_alignParentEnd="true" />
+
+    <Spinner
+        android:id="@+id/spin_app_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/spin_search_type"
+        style="@android:style/Widget.Material.Spinner.Underlined"
+        android:layout_alignParentEnd="true" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rv_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@+id/spin_app_type"
+        android:scrollbars="vertical" />
+
+    <ProgressBar
+        android:id="@+id/pb_loading"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        style="@android:style/Widget.Material.ProgressBar.Large"
+        android:layout_centerInParent="true"
+        android:visibility="gone" />
+</RelativeLayout>
