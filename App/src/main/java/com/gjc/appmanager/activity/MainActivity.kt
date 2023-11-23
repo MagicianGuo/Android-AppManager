@@ -21,6 +21,7 @@ import com.gjc.appmanager.bean.BeanApp
 import com.gjc.appmanager.constant.AppType
 import com.gjc.appmanager.constant.RequestCode
 import com.gjc.appmanager.constant.SearchType
+import com.gjc.appmanager.constant.SortType
 import com.gjc.appmanager.databinding.ActivityMainBinding
 import com.gjc.appmanager.util.shortToast
 
@@ -28,6 +29,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
     private val mAdapter = PackageAdapter()
     private var mCurrentSearchType = SearchType.LABEL
     private var mCurrentAppType = AppType.USER_INSTALLED
+    private var mCurrentSortType = SortType.DEFAULT
     private var mKeyWord = ""
     private var mThread: Thread? = null
     private val mTextWatcher = object : TextWatcher {
@@ -126,6 +128,40 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
             override fun onNothingSelected(parent: AdapterView<*>?) {
             }
         }
+        binding.spinSortType.adapter = object : ArrayAdapter<String>(
+            this,
+            R.layout.layout_sort_type_item,
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+                arrayOf("默认排序", "TargetSdk从高到低", "TargetSdk从低到高","MinSdk从高到低", "MinSdk从低到高", "CompileSdk从高到低", "CompileSdk从低到高")
+            } else {
+                arrayOf("默认排序", "TargetSdk从高到低", "TargetSdk从低到高","MinSdk从高到低", "MinSdk从低到高")
+            }
+        ) {}
+        binding.spinSortType.onItemSelectedListener =  object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(
+                parent: AdapterView<*>?,
+                view: View?,
+                position: Int,
+                id: Long
+            ) {
+                val sortType = when (position) {
+                    0 -> SortType.DEFAULT
+                    1 -> SortType.TARGET_SDK_DESCENDING
+                    2 -> SortType.TARGET_SDK_ASCENDING
+                    3 -> SortType.MIN_SDK_DESCENDING
+                    4 -> SortType.MIN_SDK_ASCENDING
+                    5 -> SortType.COMPILE_SDK_DESCENDING
+                    6 -> SortType.COMPILE_SDK_ASCENDING
+                    else -> throw RuntimeException("错误的索引：$position")
+                }
+                if (mCurrentSortType != sortType) {
+                    selectSortType(sortType)
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {
+            }
+        }
         binding.rvList.layoutManager = LinearLayoutManager(this)
         binding.rvList.adapter = mAdapter
         mAdapter.setOperationListener(object : PackageAdapter.IOperationListener {
@@ -164,6 +200,11 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
 
     private fun selectAppType(@AppType type: Int) {
         mCurrentAppType = type
+        refreshSearchTask(false)
+    }
+
+    private fun selectSortType(@SortType type: Int) {
+        mCurrentSortType = type
         refreshSearchTask(false)
     }
 
@@ -216,7 +257,54 @@ class MainActivity : BaseActivity<ActivityMainBinding>() {
                 pkgList.add(BeanApp(label, packageName, icon, compileSdk, applicationInfo.targetSdkVersion, applicationInfo.minSdkVersion))
             }
         }
-        return pkgList
+        return pkgList.let { l ->
+            when (mCurrentSortType) {
+                SortType.DEFAULT -> l
+                SortType.TARGET_SDK_DESCENDING -> {
+                    l.sortedWith(object : Comparator<BeanApp> {
+                        override fun compare(o1: BeanApp, o2: BeanApp): Int {
+                            return o2.targetSdk - o1.targetSdk
+                        }
+                    })
+                }
+                SortType.TARGET_SDK_ASCENDING -> {
+                    l.sortedWith(object : Comparator<BeanApp> {
+                        override fun compare(o1: BeanApp, o2: BeanApp): Int {
+                            return o1.targetSdk - o2.targetSdk
+                        }
+                    })
+                }
+                SortType.MIN_SDK_DESCENDING -> {
+                    l.sortedWith(object : Comparator<BeanApp> {
+                        override fun compare(o1: BeanApp, o2: BeanApp): Int {
+                            return o2.minSdk - o1.minSdk
+                        }
+                    })
+                }
+                SortType.MIN_SDK_ASCENDING -> {
+                    l.sortedWith(object : Comparator<BeanApp> {
+                        override fun compare(o1: BeanApp, o2: BeanApp): Int {
+                            return o1.minSdk - o2.minSdk
+                        }
+                    })
+                }
+                SortType.COMPILE_SDK_DESCENDING -> {
+                    l.sortedWith(object : Comparator<BeanApp> {
+                        override fun compare(o1: BeanApp, o2: BeanApp): Int {
+                            return o2.compileSdk - o1.compileSdk
+                        }
+                    })
+                }
+                SortType.COMPILE_SDK_ASCENDING -> {
+                    l.sortedWith(object : Comparator<BeanApp> {
+                        override fun compare(o1: BeanApp, o2: BeanApp): Int {
+                            return o1.compileSdk - o2.compileSdk
+                        }
+                    })
+                }
+                else -> throw RuntimeException("不支持的排序类型：$mCurrentSortType")
+            }
+        }
     }
 
     private fun isMatchResult(keyword: String, compare: String): Boolean {

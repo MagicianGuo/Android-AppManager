@@ -42,6 +42,14 @@
         style="@android:style/Widget.Material.Spinner.Underlined"
         android:layout_alignParentEnd="true" />
 
+    <Spinner
+        android:id="@+id/spin_sort_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignTop="@+id/spin_app_type"
+        android:layout_toStartOf="@+id/spin_app_type"
+        style="@android:style/Widget.Material.Spinner.Underlined" />
+
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rv_list"
         android:layout_width="match_parent"
