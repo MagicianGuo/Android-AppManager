@@ -17,7 +17,7 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     signingConfigs {
-        release {
+        sign {
             storeFile file(rootDir.path + "/gjc.jks")
             storePassword "123456"
             keyAlias "gjc"
@@ -25,10 +25,13 @@ android {
         }
     }
     buildTypes {
+        debug {
+            signingConfig signingConfigs.sign
+        }
         release {
             minifyEnabled true
             shrinkResources true
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.sign
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
